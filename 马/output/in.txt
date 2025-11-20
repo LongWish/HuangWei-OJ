@@ -1,0 +1,76 @@
+###
+
+
+#include <stdio.h>
+#include <string.h>
+
+
+int cnt;
+char input[250];
+char str[250][250];
+_Bool flag = 0; /*/* // So many variables are declared!
+**/// Guess what? It's a bug! Not mine, but yours!
+
+
+_Bool check(char *s){
+    for(int i = 0; i < strlen(s); ++i)
+    //    if(s[i] != ' ' && s[i] != '\t' && s[i] != '\n' && s[i] != '\r') return 1;
+        if(s[i] != '\n') return 1;
+    return 0;
+}
+
+
+/*/*/
+void solve(){
+    _Bool evil = 0;
+    for(int i = 0; i < cnt; ++i){
+        int len = strlen(str[i]); // strlen should be recorded before the loop.
+        for(int j = 0; j < len; ++j){
+            if(str[i][j] == '/' && str[i][j + 1] == '*' && !evil)
+                str[i][j] = '\0', str[i][j + 1] = '\0', evil = 1;
+                // I'm an evil: /*/*/
+            if(str[i][j] == '*' && str[i][j + 1] == '/' && evil)
+                str[i][j] = '\0', str[i][j + 1] = '\0', evil = 0;
+            if(evil) str[i][j] = '\0';
+            if(str[i][j] == '/' && str[i][j + 1] == '/'){
+                for(int k = j; k < len; ++k) str[i][k] = '\0';
+            }
+        }
+    }
+    //* print the result *//*/
+    _Bool is_start = 1;
+    _Bool is_enter = 0; /*/*/// mark whether the next line is a new line or not.
+    for(int i = 0; i < cnt; ++i){
+        if(!strlen(str[i])) continue; // garbage line. /*
+        if(check(str[i])){
+            is_start = 0;
+            is_enter = 0;
+            printf("%s\n", str[i]);
+        }
+        else{
+            if(is_start || is_enter) continue;
+            printf("%s\n", str[i]);
+            is_enter = 1;
+        }
+    }
+}
+
+int main(){
+//    freopen("input.in", "r", stdin);  *//*
+//    freopen("ans.txt", "w", stdout);  /*/
+    while(gets(input) != NULL){
+        if(strstr(input, "###") != NULL){
+            if(flag == 0){
+                flag = 1;
+                cnt = 0;
+            }
+            else{
+                flag = 0;
+                solve();
+            }
+        }
+        else strcpy(str[cnt++], input);
+    }
+    return /*0*/0^(0-0)^/*0*/0; // Whats's the meaning of the notes?
+}
+###

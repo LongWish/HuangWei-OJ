@@ -1,0 +1,160 @@
+###
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+// 年号定义
+typedef struct {
+    char abbr;      // 缩写
+    int start_year; // 起始年份
+    int start_month;
+    int start_day;
+    int end_year;
+    int end_month;
+    int end_day;
+} Era;
+
+// 年号数据
+Era eras[] = {
+    {'M', 1868, 9, 8, 1912, 7, 29},   // 明治
+    {'T', 1912, 7, 30, 1926, 12, 24}, // 大正
+    {'S', 1926, 12, 25, 1989, 1, 7},  // 昭和
+    {'H', 1989, 1, 8, 2019, 4, 30},   // 平成
+    {'R', 2019, 5, 1, 9999, 12, 31}   // 令和
+};
+
+// 月份天数（非闰年）
+int month_days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// 判断是否为闰年
+int is_leap_year(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// 获取月份天数
+int get_month_days(int year, int month) {
+    if (month == 2 && is_leap_year(year)) {
+        return 29;
+    }
+    return month_days[month - 1];
+}
+
+// 将日期转换为从1868年1月1日开始的绝对天数
+int date_to_days(int year, int month, int day) {
+    int days = 0;
+    
+    // 累加年份天数
+    for (int y = 1868; y < year; y++) {
+        days += is_leap_year(y) ? 366 : 365;
+    }
+    
+    // 累加月份天数
+    for (int m = 1; m < month; m++) {
+        days += get_month_days(year, m);
+    }
+    
+    // 加上当月天数
+    days += day - 1;
+    
+    return days;
+}
+
+// 将绝对天数转换为日期
+void days_to_date(int days, int *year, int *month, int *day) {
+    int y = 1868;
+    int d = days;
+    
+    // 计算年份
+    while (d >= (is_leap_year(y) ? 366 : 365)) {
+        d -= is_leap_year(y) ? 366 : 365;
+        y++;
+    }
+    
+    // 计算月份
+    int m = 1;
+    while (d >= get_month_days(y, m)) {
+        d -= get_month_days(y, m);
+        m++;
+    }
+    
+    *year = y;
+    *month = m;
+    *day = d + 1;
+}
+
+// 获取年号的起始绝对天数
+int get_era_start_days(char abbr) {
+    for (int i = 0; i < 5; i++) {
+        if (eras[i].abbr == abbr) {
+            return date_to_days(eras[i].start_year, eras[i].start_month, eras[i].start_day);
+        }
+    }
+    return -1;
+}
+
+// 根据绝对天数获取对应的年号
+char get_era_by_days(int days, int *era_year) {
+    for (int i = 0; i < 5; i++) {
+        int era_start = date_to_days(eras[i].start_year, eras[i].start_month, eras[i].start_day);
+        int era_end = date_to_days(eras[i].end_year, eras[i].end_month, eras[i].end_day);
+        
+        if (days >= era_start && days <= era_end) {
+            *era_year = (days - era_start) / 365 + 1;
+            return eras[i].abbr;
+        }
+    }
+    return '?';
+}
+
+// 将年号纪年转换为绝对天数
+int era_date_to_days(char era, int era_year, int month, int day) {
+    // 找到对应的年号
+    for (int i = 0; i < 5; i++) {
+        if (eras[i].abbr == era) {
+            // 计算公历年份
+            int year = eras[i].start_year + era_year - 1;
+            return date_to_days(year, month, day);
+        }
+    }
+    return -1;
+}
+
+// 主函数
+int main() {
+    char input[100];
+    
+    while (fgets(input, sizeof(input), stdin)) {
+        if (strlen(input) == 0) continue;
+        
+        char era;
+        int era_year, month, day, add_days;
+        
+        // 解析输入
+        if (sscanf(input, "%c%d/%d/%d %d", &era, &era_year, &month, &day, &add_days) == 5) {
+            // 转换为绝对天数
+            int days = era_date_to_days(era, era_year, month, day);
+            
+            if (days == -1) {
+                printf("Invalid era\n");
+                continue;
+            }
+            
+            // 加上天数
+            days += add_days;
+            
+            // 转换回日期
+            int new_year, new_month, new_day;
+            days_to_date(days, &new_year, &new_month, &new_day);
+            
+            // 获取对应的年号
+            int new_era_year;
+            char new_era = get_era_by_days(days, &new_era_year);
+            
+            // 输出结果
+            printf("%c%d/%d/%d\n", new_era, new_era_year, new_month, new_day);
+        }
+    }
+    
+    return 0;
+}
+###
