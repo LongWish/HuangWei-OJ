@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "cmath": "c",
+        "random": "c",
+        "limits": "c",
+        "string.h": "c",
+        "ctype.h": "c"
     }
 }

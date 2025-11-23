@@ -14,7 +14,7 @@ int main() {
     while(fgets(str, sizeof(str), stdin) != NULL)
     {
         count = 0;
-        tmp = strtok(str, " ");
+        tmp = strtok(str, " \t\r\n");
         while(tmp != NULL){
             sscanf(tmp, "%s", name[count]);
             count++;
