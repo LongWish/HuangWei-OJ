@@ -1,87 +1,35 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
-#define MAX_WORDS 100
-#define MAX_WORD_LEN 10
-#define MAX_LINE_LEN 1200
-
-int main() {
-    char line1[MAX_LINE_LEN] = {0};
-    char line2[MAX_LINE_LEN] = {0};
-    
-    // 严格只读两行
-    if (fgets(line1, MAX_LINE_LEN, stdin) == NULL) {
-        return 0;
+#include<iostream> 
+#include<cstdio> 
+#include<algorithm> 
+#include<climits> 
+using namespace std; 
+int f[10005],far[10005],a[10005],flag[10005],p,s,t,n; 
+int main() 
+{ 
+    scanf("%d",&p); 
+    scanf("%d%d%d",&s,&t,&n); 
+    if(s==t) //特殊情况判断
+    { 
+        int cont=0,qaq; 
+        for(int i=1;i<=n;++i)scanf("%d",&qaq),cont+=((qaq%s)==0); 
+        printf("%d\n",cont);return 0; 
+    } 
+    for(int i=1;i<=n;i++)scanf("%d",&a[i]); 
+    sort(a+1,a+n+1);a[0]=0;f[0]=0; 
+    far[n+1]=min(p-a[n],100);p=0; //计算终点与最后一个点的距离
+    for(int i=1;i<=n;i++)far[i]=min(a[i]-a[i-1],90),p+=far[i],flag[p]=1; //缩短路径，存储缩短后的终点距离并标记石头位置
+    p+=far[n+1]; 
+    for(int i=1;i<=p+9;i++) 
+    { 
+        f[i]=INT_MAX-1; 
+        for(int j=s;j<=t;j++)if(i>=j)f[i]=min(f[i],f[i-j]+flag[i]); 
+    } 
+    int minn=INT_MAX-1; 
+    for(int i=p;i<=p+9;i++) //因为青蛙可以跳出边界且t<=10因此再终点后p-p+9中取最小值
+    minn=min(minn,f[i]); 
+    printf("%d\n",minn); 
+    for(int i = 1; i <= p+t; i++){
+        if(flag[i] == 1)    printf("%d ", i);
     }
-    if (fgets(line2, MAX_LINE_LEN, stdin) == NULL) {
-        // 第二行可能不存在（文件末尾无换行符），但题目保证两行
-        // 为健壮性，置空第二行
-        line2[0] = '\0';
-    }
-
-    // 彻底清理行尾：\r\n, \n, \r
-    size_t len = strlen(line1);
-    while (len > 0 && (line1[len-1] == '\n' || line1[len-1] == '\r')) {
-        line1[--len] = '\0';
-    }
-    
-    len = strlen(line2);
-    while (len > 0 && (line2[len-1] == '\n' || line2[len-1] == '\r')) {
-        line2[--len] = '\0';
-    }
-
-    char words1[MAX_WORDS][MAX_WORD_LEN + 1] = {{0}};
-    char words2[MAX_WORDS][MAX_WORD_LEN + 1] = {{0}};
-    int count1 = 0, count2 = 0;
-
-    // 安全分割第一行
-    char *token = strtok(line1, " \t");
-    while (token != NULL && count1 < MAX_WORDS) {
-        // 跳过空token
-        if (token[0] == '\0') {
-            token = strtok(NULL, " \t");
-            continue;
-        }
-        
-        // 严格截断到10字符
-        size_t token_len = strlen(token);
-        if (token_len > MAX_WORD_LEN) token_len = MAX_WORD_LEN;
-        
-        strncpy(words1[count1], token, token_len);
-        words1[count1][token_len] = '\0';
-        count1++;
-        
-        token = strtok(NULL, " \t");
-    }
-
-    // 安全分割第二行
-    token = strtok(line2, " \t");
-    while (token != NULL && count2 < MAX_WORDS) {
-        if (token[0] == '\0') {
-            token = strtok(NULL, " \t");
-            continue;
-        }
-        
-        size_t token_len = strlen(token);
-        if (token_len > MAX_WORD_LEN) token_len = MAX_WORD_LEN;
-        
-        strncpy(words2[count2], token, token_len);
-        words2[count2][token_len] = '\0';
-        count2++;
-        
-        token = strtok(NULL, " \t");
-    }
-
-    // 按要求输出所有匹配
-    for (int i = 0; i < count2; i++) {
-        for (int j = 0; j < count1; j++) {
-            if (strcmp(words2[i], words1[j]) == 0) {
-                printf("(%d,%d)", i, j);
-            }
-        }
-    }
-    printf("\n");
-
-    return 0;
-}
+    printf("%d ", p);
+} 
